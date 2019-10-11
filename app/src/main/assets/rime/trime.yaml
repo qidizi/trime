@@ -50,6 +50,7 @@ style:
     - {start: "\n", label: "%s.", candidate: "%s", comment: " %s", end: "", sep: " "}
   key_font: symbol.ttf #鍵盤字型
   key_height: 44 #鍵高
+  key_height_landscape: 30 # 横屏高度
   key_long_text_size: 14 #長標籤字號
   key_text_size: 22 #鍵字號
   key_width: 10.0 #鍵寬，佔螢幕寬的百分比
@@ -722,7 +723,10 @@ android_keys:
     height: 高度
     gap: 間隔
     preview: 預覽
-    hint: 提示
+    hint_top: 键面上边提示
+    hint_right: 键面右边提示
+    hint_bottom: 键面下边提示
+    hint_left: 键面左边提示
     label: 標籤
     states: 狀態標籤
     repeatable: 連續按鍵
@@ -842,10 +846,12 @@ preset_keyboards:
     author: "osfans <waxaca@163.com>"
     ascii_mode: 0
     width: 10
-    height: 44
+    height: 44 # 竖屏高度
+    height_landscape: 30 # 横屏高度，这个值比全局的优先
     lock: true #切換程序時記憶鍵盤
     keys:
-    - {click: '1', long_click: '!'}
+    # 下方键中可以指定 hint_top 上方符号，hint_right 右方符号, hint 下方符号, hint_left 左边符号
+    - {click: '1', long_click: '!'} # 这里也支持height和height_landscape，优先级比上方的还要高；注意只有放在首列的才有效果，其它列不起作用
     - {click: '2', long_click: '@'}
     - {click: '3', long_click: '#'}
     - {click: '4', long_click: '$'}

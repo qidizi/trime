@@ -26,135 +26,147 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 
-/** {@link RecognitionListener 語音輸入} */
+/**
+ * {@link RecognitionListener 語音輸入}
+ */
 class Speech implements RecognitionListener {
-  private SpeechRecognizer speech = null;
-  private Intent recognizerIntent;
-  private String TAG = "Speech";
-  private Context context;
+    private SpeechRecognizer speech;
+    private Intent recognizerIntent;
+    private String TAG = "Speech";
+    private Context context;
 
-  public Speech(Context context) {
-    this.context = context;
-    speech = SpeechRecognizer.createSpeechRecognizer(context);
-    speech.setRecognitionListener(this);
-    recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-    //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
-    //recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.getPackageName());
-    //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-    //recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "開始語音");
-  }
-
-  private void alert(String text) {
-    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-  }
-
-  public void start() {
-    speech.startListening(recognizerIntent);
-  }
-
-  private void stop() {
-    speech.stopListening();
-  }
-
-  private void destory() {
-    if (speech != null) {
-      speech.destroy();
+    Speech(Context context) {
+        this.context = context;
+        speech = SpeechRecognizer.createSpeechRecognizer(context);
+        speech.setRecognitionListener(this);
+        recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
+        //recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.getPackageName());
+        //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        //recognizerIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "開始語音");
     }
-  }
 
-  @Override
-  public void onBeginningOfSpeech() {
-    Log.i(TAG, "onBeginningOfSpeech");
-  }
-
-  @Override
-  public void onBufferReceived(byte[] buffer) {
-    Log.i(TAG, "onBufferReceived: " + buffer);
-  }
-
-  @Override
-  public void onEndOfSpeech() {
-    Log.i(TAG, "onEndOfSpeech");
-  }
-
-  @Override
-  public void onError(int errorCode) {
-    speech.stopListening();
-    speech.destroy();
-    String errorMessage = getErrorText(errorCode);
-    alert(errorMessage);
-  }
-
-  @Override
-  public void onEvent(int arg0, Bundle arg1) {
-    Log.i(TAG, "onEvent");
-  }
-
-  @Override
-  public void onPartialResults(Bundle arg0) {
-    Log.i(TAG, "onPartialResults");
-  }
-
-  @Override
-  public void onReadyForSpeech(Bundle arg0) {
-    Log.i(TAG, "onReadyForSpeech");
-    alert("請開始說話：");
-  }
-
-  @Override
-  public void onResults(Bundle results) {
-    stop();
-    destory();
-    Log.i(TAG, "onResults");
-    Trime trime = Trime.getService();
-    if (trime == null) return;
-    ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-    String opencc_config = Config.get(context).getString("speech_opencc_config");
-    for (String result : matches) trime.commitText(Rime.openccConvert(result, opencc_config));
-  }
-
-  @Override
-  public void onRmsChanged(float rmsdB) {
-    Log.i(TAG, "onRmsChanged: " + rmsdB);
-  }
-
-  private static String getErrorText(int errorCode) {
-    String message;
-    switch (errorCode) {
-      case SpeechRecognizer.ERROR_AUDIO:
-        message = "錄音錯誤";
-        break;
-      case SpeechRecognizer.ERROR_CLIENT:
-        message = "客戶端錯誤";
-        break;
-      case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-        message = "權限不足";
-        break;
-      case SpeechRecognizer.ERROR_NETWORK:
-        message = "網絡錯誤";
-        break;
-      case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-        message = "網絡超時";
-        break;
-      case SpeechRecognizer.ERROR_NO_MATCH:
-        message = "未能識別";
-        break;
-      case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-        message = "識別服務忙";
-        break;
-      case SpeechRecognizer.ERROR_SERVER:
-        message = "服務器錯誤";
-        break;
-      case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-        message = "無語音輸入";
-        break;
-      default:
-        message = "未知錯誤";
-        break;
+    private void alert(String text) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
-    return message;
-  }
+
+    public void start() {
+        speech.startListening(recognizerIntent);
+    }
+
+    private void stop() {
+        speech.stopListening();
+    }
+
+    private void destroy() {
+        if (speech != null) {
+            speech.destroy();
+        }
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+        Log.i(TAG, "onBeginningOfSpeech");
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+        Log.i(TAG, "onBufferReceived: " + Arrays.toString(buffer));
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        Log.i(TAG, "onEndOfSpeech");
+        alert("识别中...");
+    }
+
+    @Override
+    public void onError(int errorCode) {
+        speech.stopListening();
+        speech.destroy();
+        String errorMessage = getErrorText(errorCode);
+        alert(errorMessage);
+    }
+
+    @Override
+    public void onEvent(int arg0, Bundle arg1) {
+        Log.i(TAG, "onEvent");
+    }
+
+    @Override
+    public void onPartialResults(Bundle arg0) {
+        Log.i(TAG, "onPartialResults");
+    }
+
+    @Override
+    public void onReadyForSpeech(Bundle arg0) {
+        Log.i(TAG, "onReadyForSpeech");
+        alert("请开始说话：");
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        stop();
+        destroy();
+        Log.i(TAG, "onResults");
+        Trime trime = Trime.getService();
+        if (trime == null) return;
+        ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+
+        if (null == matches)
+          return;
+
+        String opencc_config = Config.get(context).getString("speech_opencc_config");
+        StringBuilder text = new StringBuilder();
+        for (String result : matches)
+          text.append(Rime.openccConvert(result, opencc_config));
+        trime.commitText(text.toString());
+    }
+
+    @Override
+    public void onRmsChanged(float rms_dB) {
+        Log.i(TAG, "onRmsChanged: " + rms_dB);
+    }
+
+    private static String getErrorText(int errorCode) {
+        String error;
+        switch (errorCode) {
+            case SpeechRecognizer.ERROR_AUDIO:
+                error = "录制异常";
+                break;
+            case SpeechRecognizer.ERROR_CLIENT:
+                error = "tts组件异常";
+                break;
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
+                error = "请授予录音权限";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK:
+                error = "tts网络异常";
+                break;
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
+                error = "tts网络超时";
+                break;
+            case SpeechRecognizer.ERROR_NO_MATCH:
+                error = "无法识别";
+                break;
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
+                error = "tts正被使用，请稍候";
+                break;
+            case SpeechRecognizer.ERROR_SERVER:
+                error = "tts服务异常";
+                break;
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
+                error = "等待语音输入超时";
+                break;
+            default:
+                error = "未知错误";
+                break;
+        }
+        return error;
+    }
 }

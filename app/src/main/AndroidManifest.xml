@@ -19,19 +19,19 @@
  */
 -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
-        package="com.osfans.trime" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools" package="com.osfans.trime" >
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <application android:label="@string/ime_name"
                  android:icon="@drawable/icon"
                  android:requestLegacyExternalStorage="true"
-                 android:allowBackup="false" >
+                 android:allowBackup="false" tools:ignore="GoogleAppIndexingWarning"
+                 tools:targetApi="29">
 
         <service android:name="Trime" android:label="@string/ime_name"
                 android:permission="android.permission.BIND_INPUT_METHOD">
